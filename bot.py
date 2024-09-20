@@ -1,38 +1,24 @@
-import os
 import asyncio
+import os
 import logging
 from aiogram import Bot, Dispatcher
-from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ParseMode
 from dotenv import load_dotenv
 
-from handlers import start_head
+from handler import admin_handler, user_handler
+
 
 load_dotenv()
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
-# Запуск бота
+
+
 async def main():
-    bot = Bot(
-        token=os.getenv("BOT_TOKEN"),
-        default=DefaultBotProperties(
-            parse_mode=ParseMode.HTML
-        )
-    )
+    bot = Bot(token=os.getenv('BOT_TOKEN'))
     dp = Dispatcher()
-    dp.include_router(start_head.router)
-    try:
-        # Удаление вебхуков и очистка накопленных обновлений
-        await bot.delete_webhook(drop_pending_updates=True)
-    except Exception as e:
-        logging.error(f"Ошибка при удалении вебхуков: {e}")
-
-    try:
-        # Запуск бота с поллингом
-        await dp.start_polling(bot, skip_updates=True)
-    except Exception as e:
-        logging.error(f"Ошибка при запуске поллинга: {e}")
+    dp.include_routers(admin_handler.router, user_handler.router)
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
