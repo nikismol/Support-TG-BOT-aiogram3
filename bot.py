@@ -4,7 +4,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 
-from handler import admin_handler, user_handler
+from handler import user_handler
 
 
 load_dotenv()
@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO)
 async def main():
     bot = Bot(token=os.getenv('BOT_TOKEN'))
     dp = Dispatcher()
-    dp.include_routers(admin_handler.router, user_handler.router)
+    dp.include_routers(user_handler.router)
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 

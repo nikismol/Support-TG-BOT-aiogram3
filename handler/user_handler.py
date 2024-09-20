@@ -1,7 +1,8 @@
 import os
 from aiogram import F, Router
 from aiogram.types import Message
-from aiogram.fsm.context import FSMContext
+from aiogram.filters import CommandStart
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,25 +15,24 @@ def get_user_data(message: Message) -> str:
             f'{message.from_user.last_name or "Фамилия отсутствует."}\n\n')
 
 
-@router.message(F.photo)
-async def forward_photo_to_admin(message: Message, state: FSMContext):
-    user_data = get_user_data(message)
-    caption = message.caption if message.caption else None
-    text = user_data + f'Подпись: {caption}'
+@router.message(CommandStart())
+async def start_handler(message: Message) -> None:
+    await message.answer(f'Добрый день, {message.from_user.first_name if message.from_user.first_name is not None else message.from_user.username}.\nБот запущен.\n')
 
-    await message.bot.send_photo(
-        chat_id=CHAT_ID,
-        photo=message.photo[-1].file_id,
-        caption=text  # Добавляем ID пользователя в подпись
-    )
 
-@router.message(F.text)
-async def send_to_admin(message: Message, state: FSMContext):
-    user_data = get_user_data(message)
-    text_message = message.text if message.text is not None else "Сообщение без текста."
-    message_for_admin = user_data + text_message
+@router.message()
+async def echo_handler(message: Message) -> None:
+    await message.answer(message.text)
 
-    await message.bot.send_message(
-        chat_id=CHAT_ID,
-        text=message_for_admin,  # Отправляем администратору сообщение с ID пользователя
-    )
+
+
+# @router.message(F.text)
+# async def send_to_admin(message: Message, state: FSMContext):
+#     user_data = get_user_data(message)
+#     text_message = message.text if message.text is not None else "Сообщение без текста."
+#     message_for_admin = user_data + text_message
+#
+#     await message.bot.send_message(
+#         chat_id=CHAT_ID,
+#         text=message_for_admin,  # Отправляем администратору сообщение с ID пользователя
+#     )
