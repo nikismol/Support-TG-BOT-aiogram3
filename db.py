@@ -25,7 +25,7 @@ def db_profile_exist_usr(username):
     cursor.execute("SELECT 1 FROM profiles WHERE username = ?", (username,))
     return cursor.fetchone() is not None
 
-def db_profile_insertone(query):
+def db_profile_insert(query):
     try:
         cursor.execute("INSERT INTO profiles (id, username, access, ban) VALUES (?, ?, ?, ?)",
                        (query['_id'], query['username'], query['access'], query['ban']))
@@ -47,7 +47,7 @@ def db_profile_banned(uid):
     cursor.execute("SELECT ban FROM profiles WHERE id = ?", (uid,))
     return cursor.fetchone()[0] == 1
 
-def db_profile_updateone(uid, updates):
+def db_profile_update(uid, updates):
     # Формируем запрос на обновление только тех полей, которые есть в словаре updates
     query = "UPDATE profiles SET "
     query_fields = []
@@ -70,7 +70,7 @@ def db_profile_updateone(uid, updates):
     connection.commit()
 
 
-def db_profile_get_usrname(username, get):
+def db_profile_get_user_name(username, get):
     cursor.execute(f"SELECT {get} FROM profiles WHERE username = ?", (username,))
     return cursor.fetchone()[0]
 

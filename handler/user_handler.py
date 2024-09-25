@@ -16,7 +16,7 @@ class Question(StatesGroup):
 
 
 @router.message(ChatTypeFilter('private'), CommandStart())
-async def client_start(message: Message):
+async def start_handler(message: Message):
     if db_profile_exist(message.from_user.id):
         await message.answer(welcomemessage, parse_mode='Markdown', reply_markup=mainmenu)
     else:
