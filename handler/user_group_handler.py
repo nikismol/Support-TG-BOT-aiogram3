@@ -8,7 +8,7 @@ from filters.chat_types import ChatTypeFilter
 router = Router()
 router.message.filter(ChatTypeFilter(['private','group', 'supergroup']))
 
-restricted_words = {'хуй', 'пизда'}
+restricted_words = {'мат', 'мат'}
 
 
 def clean_text(text: str):
