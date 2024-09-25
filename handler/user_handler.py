@@ -1,38 +1,30 @@
-import os
 from aiogram import F, Router
 from aiogram.types import Message
-from aiogram.filters import CommandStart
+from aiogram.filters import Command, CommandStart, or_f
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 
-from dotenv import load_dotenv
+from filters.chat_types import ChatTypeFilter
+from db import db_profile_exist, db_profile_insertone
 
-load_dotenv()
 router = Router()
-CHAT_ID = os.getenv('CHAT_ID')
+router.message.filter(ChatTypeFilter(['private']))
 
-def get_user_data(message: Message) -> str:
-    return (f'{message.from_user.id}\n'  # Сохраняем ID пользователя
-            f'{message.from_user.first_name or "Имя отсутствует."}\n'
-            f'{message.from_user.last_name or "Фамилия отсутствует."}\n\n')
-
-
-@router.message(CommandStart())
-async def start_handler(message: Message) -> None:
-    await message.answer(f'Добрый день, {message.from_user.first_name if message.from_user.first_name is not None else message.from_user.username}.\nБот запущен.\n')
-
-
-@router.message()
-async def echo_handler(message: Message) -> None:
-    await message.answer(message.text)
+class Question(StatesGroup):
+    text = State()
 
 
 
-# @router.message(F.text)
-# async def send_to_admin(message: Message, state: FSMContext):
-#     user_data = get_user_data(message)
-#     text_message = message.text if message.text is not None else "Сообщение без текста."
-#     message_for_admin = user_data + text_message
-#
-#     await message.bot.send_message(
-#         chat_id=CHAT_ID,
-#         text=message_for_admin,  # Отправляем администратору сообщение с ID пользователя
-#     )
+@router.message(ChatTypeFilter('private'), CommandStart())
+async def client_start(message: Message):
+    if db_profile_exist(message.from_user.id):
+        await message.answer(welcomemessage, parse_mode='Markdown', reply_markup=mainmenu)
+    else:
+        db_profile_insertone({
+            '_id': message.from_user.id,
+            'username': message.from_user.username,
+            'access': 0,
+            'ban': 0
+        })
+        print('Новый пользователь!')
+        await message.answer(welcomemessage, parse_mode='Markdown', reply_markup=mainmenu)
