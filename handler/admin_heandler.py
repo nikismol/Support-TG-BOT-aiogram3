@@ -3,7 +3,7 @@ from aiogram.types import Message
 import logging
 from aiogram.filters import Command
 
-from handlers.db import db_profile_access, db_profile_exist, db_profile_updateone, db_profile_exist_usr, db_profile_get_usrname
+from handler.db import db_profile_access, db_profile_exist, db_profile_updateone, db_profile_exist_usr, db_profile_get_usrname
 
 
 router = Router()
